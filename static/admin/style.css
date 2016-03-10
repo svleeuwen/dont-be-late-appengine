@@ -1,0 +1,158 @@
+/**
+* Generic stuff
+*/
+#mainPage {
+  padding-top: 50px;
+}
+.bottom {
+    margin-bottom: 100px;
+}
+.tablecell_nowrap {
+    white-space: nowrap;
+    min-width: 150px;
+}
+.inline_form {
+    display: inline-block;
+}
+table th.small,
+table td.small {
+    width: 1%;
+    white-space: nowrap;
+}
+
+.notification_page .headings {
+    font-weight: bold;
+    margin-top: 16px;
+    margin-bottom: 16px;
+}
+.notification_page .subhead {
+    font-size: 20px;
+    margin-top: 16px;
+    margin-bottom: 16px;
+    padding: 6px;
+    background-color: #ececec;
+}
+.thumbnail_placeholder {
+    display: inline-block;
+    height: 100px;
+    width: 100px;
+    background-color: black;
+}
+.savebtn {
+    margin-top: 16px;
+    margin-bottom: 16px;
+}
+
+.form-inline .form-group {
+    margin: 10px 0 10px 0;
+}
+
+.ui-helper-hidden-accessible { position: absolute; left:-999em; }
+
+.cms_page_header h1 {
+    margin-top: 0;
+}
+.cms_page_header {
+    margin: 16px;
+}
+.cms_page_content {
+    margin: 16px;
+    padding: 32px;
+    background-color: #f8f8f8;
+    border-top: solid #dedede 1px;
+}
+.cms_page_header .save_button,
+.bottom_save .save_button {
+    min-width: 100px;
+}
+.key_row {
+    padding-bottom: 12px;
+}
+.delete_form {
+    display: inline;
+}
+
+.change-list .filters {
+    text-align: right;
+}
+.change-list .action-buttons {
+    min-width: 146px;
+}
+.change-list .action-buttons-lg {
+    min-width: 215px;
+}
+
+@media(max-width: 768px) {
+    .change-list .actions {
+        float: left !important;
+    }
+}
+
+/**
+* Button spinner
+*/
+.spinner {
+    display: inline-block;
+    opacity: 0;
+    width: 0;
+
+    -webkit-transition: opacity 0.25s, width 0.25s;
+    -moz-transition: opacity 0.25s, width 0.25s;
+    -o-transition: opacity 0.25s, width 0.25s;
+    transition: opacity 0.25s, width 0.25s;
+}
+
+.has-spinner.active {
+    cursor: progress;
+}
+
+.has-spinner.active .spinner {
+    opacity: 1;
+    width: auto; /* This doesn't work, just fix for unkown width elements */
+}
+
+.has-spinner.btn-mini.active .spinner {
+    width: 10px;
+}
+
+.has-spinner.btn-small.active .spinner {
+    width: 13px;
+}
+
+.has-spinner.btn.active .spinner {
+    width: 16px;
+}
+
+.has-spinner.btn-large.active .spinner {
+    width: 19px;
+}
+
+.glyphicon-spin {
+    -webkit-animation: spin 1000ms infinite linear;
+    animation: spin 1000ms infinite linear;
+}
+@-webkit-keyframes spin {
+  0% {
+    -webkit-transform: rotate(0deg);
+    transform: rotate(0deg);
+  }
+  100% {
+    -webkit-transform: rotate(359deg);
+    transform: rotate(359deg);
+  }
+}
+@keyframes spin {
+  0% {
+    -webkit-transform: rotate(0deg);
+    transform: rotate(0deg);
+  }
+  100% {
+    -webkit-transform: rotate(359deg);
+    transform: rotate(359deg);
+  }
+}
+
+/**
+* Project specific stuff
+*/
+

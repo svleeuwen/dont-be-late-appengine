@@ -1,0 +1,14 @@
+URL: https://github.com/twbs/bootstrap/releases/download/v3.3.5/bootstrap-3.3.5-dist.zip
+Version: 3.3.6
+License: MIT
+License File: LICENSE
+
+Description:
+Bootstrap is the most popular HTML, CSS, and JS framework for developing
+responsive, mobile first projects on the web.
+
+Local Modifications:
+
+LICENSE file has been created for compliance purposes. Not included in
+the original distribution.
+Copied from <https://github.com/twbs/bootstrap/blob/v3.3.6/LICENSE>.
