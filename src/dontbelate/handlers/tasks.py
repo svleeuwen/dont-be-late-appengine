@@ -50,7 +50,6 @@ def parse_ns_api_result(xml):
         departure_actual = element.find('ActueleVertrekTijd').text
         departure_actual = datetime.datetime.strptime(departure_actual[:-5], settings.NS_DATE_TIME_FORMAT)
         delay = departure_actual - departure_planned
-        #import pdb; pdb.set_trace()
         if not delay.seconds:
             continue
         delay = delay.seconds / 60
@@ -69,33 +68,67 @@ def parse_ns_api_result(xml):
     return delays
 
 
+def create_push_message(delays):
+    out = ''
+    for i, delay in enumerate(delays):
+        out += '{departure_planned}: (+{delay}) sp. {track}'.format(**delay)
+        if i < len(delays) - 1:
+            out += ', '
+        else:
+            out += '.'
+    return out
+
+
+def send_push_notification(message, access_token):
+    boxcar_api_base_url = 'https://new.boxcar.io/api/notifications'
+    params = {
+        'user_credentials': access_token,
+        'notification[title]': message,
+    }
+    response = urlfetch.fetch(
+        url=boxcar_api_base_url,
+        payload=urllib.urlencode(params),
+        method=urlfetch.POST
+    )
+    if response.status_code != 201:
+        print response.content
+
+
 def check_routes(routes):
-    delays = []
+    all_delays = []
     for route in routes:
         if not route.profile.boxcar_send_push:
             continue
-        delays.extend(call_ns_api(route.station_from, route.station_to, route.departure_time_from))
-    return delays
+        delays = call_ns_api(route.station_from, route.station_to, route.departure_time_from)
+        if not delays:
+            continue
+        boxcar_access_token = route.profile.boxcar_access_token
+        message = create_push_message(delays)
+        send_push_notification(message, boxcar_access_token)
+        all_delays.extend(delays)
+    return all_delays
+
+
+def find_routes_to_check():
+    profiles = Profile.query().fetch(limit=500)
+    routes_to_check = []
+    for profile in profiles:
+        routes = profile.get_routes()
+        for route in routes:
+            if not route.key:
+                continue
+            now = datetime.datetime.now()
+            if route.departure_time_from_offset <= now.time() <= route.departure_time_until:
+                route.profile = profile
+                routes_to_check.append(route)
+    return routes_to_check
 
 
 class FetchAPI(handlers.AdminHandler):
 
     def get(self):
-        profiles = Profile.query().fetch(limit=500)
-        routes_to_check = []
-        for profile in profiles:
-            routes = profile.get_routes()
-            for route in routes:
-                if not route.key:
-                    continue
-                now = datetime.datetime.now()
-                if route.departure_time_from_offset <= now.time() <= route.departure_time_until:
-                    route.profile = profile
-                    routes_to_check.append(route)
-        import pdb; pdb.set_trace()
+        routes_to_check = find_routes_to_check()
         delays = check_routes(routes_to_check)
-
-        #delays = fetch_ns_api()
         self.render('admin/ns_api_results.tpl', {
             'delays': delays,
         })
@@ -111,6 +144,5 @@ class FetchAPI(handlers.AdminHandler):
 class PollAPI(handlers.BaseCronHandler):
 
     def get(self):
-        call_ns_api()
-
-
+        routes_to_check = find_routes_to_check()
+        check_routes(routes_to_check)
