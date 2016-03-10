@@ -8,6 +8,7 @@ from google.appengine.api import users
 
 from base import handlers
 from dontbelate import settings
+from dontbelate.models import Profile
 
 
 def _basic_auth_str(username, password):
@@ -15,20 +16,20 @@ def _basic_auth_str(username, password):
     return 'Basic ' + b64encode('{}:{}'.format(username, password).encode('latin1')).strip()
 
 
-def fetch_ns_api():
+def call_ns_api(station_from, station_to, departure_time):
     ns_api_base_url = 'http://webservices.ns.nl/ns-api-treinplanner'
     basic_auth = settings.NS_API_BASIC_AUTH
-    num_previous_advices = 'false'
+    num_previous_advices = 0
     include_high_speed = 'true'
-    station_from = 'Utrecht Centraal'
-    station_to = 'Gouda'
+    now = datetime.datetime.now()
+    departure_time = now.replace(hour=departure_time.hour, minute=departure_time.minute).strftime('%Y-%m-%dT%H:%M')
     params = {
         'fromStation': station_from,
         'toStation': station_to,
         'hslAllowed': include_high_speed,
         'previousAdvices': num_previous_advices,
+        'dateTime': departure_time,
     }
-
     url = '{}?{}'.format(ns_api_base_url, urllib.urlencode(params))
     response = urlfetch.fetch(
         url=url,
@@ -68,10 +69,33 @@ def parse_ns_api_result(xml):
     return delays
 
 
+def check_routes(routes):
+    delays = []
+    for route in routes:
+        if not route.profile.boxcar_send_push:
+            continue
+        delays.extend(call_ns_api(route.station_from, route.station_to, route.departure_time_from))
+    return delays
+
+
 class FetchAPI(handlers.AdminHandler):
 
     def get(self):
-        delays = fetch_ns_api()
+        profiles = Profile.query().fetch(limit=500)
+        routes_to_check = []
+        for profile in profiles:
+            routes = profile.get_routes()
+            for route in routes:
+                if not route.key:
+                    continue
+                now = datetime.datetime.now()
+                if route.departure_time_from_offset <= now.time() <= route.departure_time_until:
+                    route.profile = profile
+                    routes_to_check.append(route)
+        import pdb; pdb.set_trace()
+        delays = check_routes(routes_to_check)
+
+        #delays = fetch_ns_api()
         self.render('admin/ns_api_results.tpl', {
             'delays': delays,
         })
@@ -87,6 +111,6 @@ class FetchAPI(handlers.AdminHandler):
 class PollAPI(handlers.BaseCronHandler):
 
     def get(self):
-        fetch_ns_api()
+        call_ns_api()
 
 
