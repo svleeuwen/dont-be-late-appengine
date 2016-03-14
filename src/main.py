@@ -19,8 +19,6 @@ from webapp2_extras.routes import RedirectRoute
 import base
 import base.constants
 import handlers
-import android_apps.handlers.admin
-import android_apps.handlers.api
 import dontbelate.handlers.tasks
 import dontbelate.handlers.admin
 
@@ -32,7 +30,6 @@ _UNAUTHENTICATED_ROUTES = [
 # These should all inherit from base.handlers.BaseAjaxHandler
 _UNAUTHENTICATED_AJAX_ROUTES = [
     ('/csp', handlers.CspHandler),
-    webapp2.Route('/api/app/<language_code:[-\w]+>/proto', android_apps.handlers.api.AppListProtoBufHandler),
 ]
 
 # These should all inherit from base.handlers.AuthenticatedHandler
@@ -60,7 +57,7 @@ _CRON_ROUTES = []
 
 # These should all inherit from base.handlers.BaseTaskHandler
 _TASK_ROUTES = [
-    webapp2.Route('/poll-api', dontbelate.handlers.tasks.PollAPI, name='poll_api'),
+    webapp2.Route('/tasks/poll-api', dontbelate.handlers.tasks.PollAPI, name='poll_api'),
 ]
 
 # Place global application configuration settings (e.g. settings for

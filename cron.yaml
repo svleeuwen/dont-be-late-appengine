@@ -1,0 +1,4 @@
+cron:
+- description: Poll NS API for profiles within time slot
+  url: /tasks/poll-api
+  schedule: every 1 minutes
