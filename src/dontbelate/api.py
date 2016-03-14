@@ -1,3 +1,4 @@
+import base64
 import datetime
 import urllib
 import xml.etree.ElementTree as ET
@@ -7,6 +8,7 @@ from google.appengine.api import urlfetch
 
 from dontbelate import settings
 from dontbelate.models import Profile
+from generic.utils import utc_to_local
 
 
 def _basic_auth_str(username, password):
@@ -111,7 +113,7 @@ def check_routes(routes):
             continue
         boxcar_access_token = route.profile.boxcar_access_token
         message, message_long = create_push_message(delays)
-        hashed_message = hash(message)
+        hashed_message = base64.b64encode(message)
         if route.latest_push_message != hashed_message:
             route.latest_push_message = hashed_message
             route.put()
@@ -129,7 +131,8 @@ def find_routes_to_check():
             if not route.key:
                 continue
             now = datetime.datetime.now()
-            if route.departure_time_from_offset <= now.time() <= route.departure_time_until:
+            local_now = utc_to_local(now)
+            if route.departure_time_from_offset <= local_now.time() <= route.departure_time_until:
                 route.profile = profile
                 routes_to_check.append(route)
     return routes_to_check

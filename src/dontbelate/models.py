@@ -24,4 +24,4 @@ class Route(ndb.Model):
     # when to start polling
     departure_time_from_offset = ndb.TimeProperty()
     # hash of latest push message
-    latest_push_message = ndb.IntegerProperty(indexed=False)
+    latest_push_message = ndb.StringProperty(indexed=False)

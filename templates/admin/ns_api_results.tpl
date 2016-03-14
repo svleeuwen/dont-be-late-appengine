@@ -25,7 +25,7 @@
         <tr>
           <td>{{ delay.departure_planned }} (+{{ delay.delay }} minutes)</td>
           <td>{{ delay.train_type }}</td>
-          <td><span class="text-danger">{{ delay.track }}</span></td>
+          <td>{% if delay.track_change %}<span class="text-danger">{% endif %}{{ delay.track }}</span></td>
         </tr>
       {% endfor %}
     </table>
