@@ -7,9 +7,7 @@ from collections import namedtuple
 
 from google.appengine.api import images, app_identity, blobstore
 
-import cloudstorage
-
-
+Remove
 MAX_DEEPLINK_LENGTH = 40
 
 
