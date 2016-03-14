@@ -118,7 +118,8 @@ _CONFIG = {
                       '\'sha256-UJTyccto2VcmDTExLsNUE+yXftTqSxxFel9MqQsA2UI=\' '
                       '\'sha256-wGT5D3ZixUjzWFZmdnI7IbZ50msIkD6EtjmvuYfC5L0=\' '
                       '\'sha256-9pt6fFhBGDnOj9zFk4XYSRW3iRKzic7urgQBXM5vGrE=\' '
-                      '\'sha256-Nn8qbLFAjUUBiNU9McCyH/sZmAMI1k00h37ZCK4Mc/Y=\' ',
+                      '\'sha256-Nn8qbLFAjUUBiNU9McCyH/sZmAMI1k00h37ZCK4Mc/Y=\' '
+                      '\'sha256-GohQAOpjUXv/t34eIu2L7/KivioMgMz8lKkhaHUZfaE=\' ',
         # Maps, YouTube provide <iframe> based embedding at these URIs.
         'child-src':  '\'self\' https://www.google.com https://www.youtube.com',
         # Deprecated. Used for supporting browsers that use CSP 1.0 only.
@@ -133,7 +134,7 @@ _CONFIG = {
         'reportOnly': base.constants.DEBUG,
     },
     'webapp2_extras.sessions': {
-        'secret_key': '3a9b8277b7914e65bfad1bd317b7693c',
+        'secret_key': 'cb60c0e58d1b40e299f08a1d2097f3f7',
     },
 }
 
