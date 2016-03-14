@@ -59,7 +59,9 @@ _ADMIN_AJAX_ROUTES = []
 _CRON_ROUTES = []
 
 # These should all inherit from base.handlers.BaseTaskHandler
-_TASK_ROUTES = []
+_TASK_ROUTES = [
+    webapp2.Route('/poll-api', dontbelate.handlers.tasks.PollAPI, name='poll_api'),
+]
 
 # Place global application configuration settings (e.g. settings for
 # 'webapp2_extras.sessions') here.
