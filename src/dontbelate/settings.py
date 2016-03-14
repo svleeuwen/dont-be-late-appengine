@@ -5,6 +5,8 @@ NS_API_BASIC_AUTH = ('emailaddress', 'api-token')
 
 MIN_SLUG_LENGTH = 3
 
+DEFAULT_TIME_ZONE = 'Europe/Amsterdam'
+
 
 # General
 APP_ID_PRODUCTION = 'dont-be-late-ns'
