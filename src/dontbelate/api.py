@@ -35,10 +35,10 @@ def call_ns_api(station_from, station_to, departure_time):
     )
     if response.status_code != 200:
         raise
-    return parse_ns_api_result(response.content)
+    return parse_ns_api_result(response.content, station_from, station_to)
 
 
-def parse_ns_api_result(xml):
+def parse_ns_api_result(xml, station_from, station_to):
     tree = ET.fromstring(xml)
     delays = []
     for element in tree.iter('ReisMogelijkheid'):
@@ -56,6 +56,8 @@ def parse_ns_api_result(xml):
         track = track_elem.text
         track_change = False if track_elem.attrib.get('wijziging') == 'false' else True
         delays.append({
+            'station_from': station_from,
+            'station_to': station_to,
             'train_type': train_type,
             'track_change': track_change,
             'track': track,
@@ -68,20 +70,27 @@ def parse_ns_api_result(xml):
 
 def create_push_message(delays):
     out = ''
+    out_long = ''
     for i, delay in enumerate(delays):
         out += '{departure_planned}: (+{delay}) sp. {track}'.format(**delay)
+        # add exclamation emoji if track changed
+        if delay['track_change']:
+            out += '\xE2\x9D\x97'
+        out_long += '{station_from} - {station_to} {departure_planned}: (+{delay}) sp. {track} ({train_type})'.format(**delay)
         if i < len(delays) - 1:
             out += ', '
+            out_long += '\n'
         else:
             out += '.'
-    return out
+    return out, out_long
 
 
-def send_push_notification(message, access_token):
+def send_push_notification(message, message_long, access_token):
     boxcar_api_base_url = 'https://new.boxcar.io/api/notifications'
     params = {
         'user_credentials': access_token,
         'notification[title]': message,
+        'notification[long_message]': message_long,
     }
     response = urlfetch.fetch(
         url=boxcar_api_base_url,
@@ -101,8 +110,12 @@ def check_routes(routes):
         if not delays:
             continue
         boxcar_access_token = route.profile.boxcar_access_token
-        message = create_push_message(delays)
-        send_push_notification(message, boxcar_access_token)
+        message, message_long = create_push_message(delays)
+        hashed_message = hash(message)
+        if route.latest_push_message != hashed_message:
+            route.latest_push_message = hashed_message
+            route.put()
+            send_push_notification(message, message_long, boxcar_access_token)
         all_delays.extend(delays)
     return all_delays
 
