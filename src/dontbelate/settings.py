@@ -2,6 +2,7 @@ from google.appengine.api import app_identity
 
 NS_DATE_TIME_FORMAT = '%Y-%m-%dT%H:%M:%S'
 
+MIN_SLUG_LENGTH = 3
 
 # General
 APP_ID_PRODUCTION = 'dont-be-late'

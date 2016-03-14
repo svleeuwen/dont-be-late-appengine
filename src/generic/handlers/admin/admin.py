@@ -5,7 +5,7 @@ from base import handlers
 from base.handlers import AdminAjaxHandler
 from generic import utils
 from generic.utils import valid_slug
-from tango import settings
+from dontbelate import settings
 
 
 class AdminBaseDetailHandler(handlers.AdminHandler):

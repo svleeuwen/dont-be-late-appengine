@@ -6,7 +6,7 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     
-    <title>{% block title %}{% endblock %} | Google Project Tango discovery app CMS</title>
+    <title>{% block title %}{% endblock %} | Don't be late</title>
 
     <link rel="stylesheet" href="/static/admin/third_party/bootstrap/css/bootstrap.css">
     <link rel="stylesheet" href="/static/admin/third_party/bootstrap/css/bootstrap-theme.css">
