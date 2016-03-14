@@ -7,7 +7,7 @@ MIN_SLUG_LENGTH = 3
 
 
 # General
-APP_ID_PRODUCTION = 'dont-be-late'
+APP_ID_PRODUCTION = 'dont-be-late-ns'
 try:
     APP_ID = app_identity.get_application_id()
 except AttributeError:
