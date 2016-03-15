@@ -1,10 +1,13 @@
 import base64
 import datetime
+import logging
 import urllib
 import xml.etree.ElementTree as ET
 from base64 import b64encode
 
 from google.appengine.api import urlfetch
+from google.appengine.api.app_identity import app_identity
+from webapp2 import uri_for
 
 from dontbelate import settings
 from dontbelate.models import Profile
@@ -87,12 +90,14 @@ def create_push_message(delays):
     return out, out_long
 
 
-def send_push_notification(message, message_long, access_token):
+def send_push_notification(message, message_long, access_token, url):
     boxcar_api_base_url = 'https://new.boxcar.io/api/notifications'
     params = {
         'user_credentials': access_token,
         'notification[title]': message,
         'notification[long_message]': message_long,
+        'notification[sound]': 'boing',
+        'notification[open_url]': url
     }
     response = urlfetch.fetch(
         url=boxcar_api_base_url,
@@ -100,13 +105,15 @@ def send_push_notification(message, message_long, access_token):
         method=urlfetch.POST
     )
     if response.status_code != 201:
-        print response.content
+        logging.error('Error occured for push: {}'.format(response.content))
 
 
 def check_routes(routes):
     all_delays = []
     for route in routes:
         if not route.profile.boxcar_send_push:
+            continue
+        if route.profile.silence_until and route.profile.silence_until > datetime.datetime.now():
             continue
         delays = call_ns_api(route.station_from, route.station_to, route.departure_time_from)
         if not delays:
@@ -117,7 +124,9 @@ def check_routes(routes):
         if route.latest_push_message != hashed_message:
             route.latest_push_message = hashed_message
             route.put()
-            send_push_notification(message, message_long, boxcar_access_token)
+            url = 'https://{}.appspot.com{}'.format(app_identity.get_application_id(),
+                                                     uri_for('profile_edit', obj_id=route.profile.key.id()))
+            send_push_notification(message, message_long, boxcar_access_token, url)
         all_delays.extend(delays)
     return all_delays
 

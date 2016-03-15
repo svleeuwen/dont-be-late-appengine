@@ -21,10 +21,12 @@ import base.constants
 import handlers
 import dontbelate.handlers.tasks
 import dontbelate.handlers.admin
+import dontbelate.handlers.views
 
 # These should all inherit from base.handlers.BaseHandler
 _UNAUTHENTICATED_ROUTES = [
     ('/', handlers.RootHandler),
+    webapp2.Route('/profile/<obj_id:\d+>', dontbelate.handlers.views.ProfileEditHandler, name='profile_edit'),
 ]
 
 # These should all inherit from base.handlers.BaseAjaxHandler

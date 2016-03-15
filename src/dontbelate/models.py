@@ -6,6 +6,7 @@ class Profile(ndb.Model):
     boxcar_access_token = ndb.StringProperty(indexed=False)
     boxcar_send_push = ndb.BooleanProperty(default=True)
     routes = ndb.KeyProperty(repeated=True)
+    silence_until = ndb.DateTimeProperty()
 
     def __unicode__(self):
         return u'Profile {}'.format(self.user_id)
