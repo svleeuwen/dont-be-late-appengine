@@ -45,7 +45,7 @@
         <label for="boxcar_send_push">
           <input type="checkbox" class="form-control" id="boxcar_send_push" name="boxcar_send_push"
                  {% if object.boxcar_send_push %}checked{% endif %}>
-          Boxcar send push token</label>
+          Boxcar send push notification</label>
       </div>
     </div>
 
