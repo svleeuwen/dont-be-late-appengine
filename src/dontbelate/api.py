@@ -125,7 +125,7 @@ def check_routes(routes):
             route.latest_push_message = hashed_message
             route.put()
             url = 'https://{}.appspot.com{}'.format(app_identity.get_application_id(),
-                                                     uri_for('profile_edit', obj_id=route.profile.key.id()))
+                                                    uri_for('profile_edit', obj_id=route.profile.key.id()))
             send_push_notification(message, message_long, boxcar_access_token, url)
         all_delays.extend(delays)
     return all_delays
