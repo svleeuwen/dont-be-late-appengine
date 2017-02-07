@@ -45,22 +45,26 @@ def call_ns_api(station_from, station_to, departure_time):
 
 def parse_ns_api_result(xml, station_from, station_to):
     tree = ET.fromstring(xml)
-    delays = []
+    statuses = []
     for element in tree.iter('ReisMogelijkheid'):
-        print element.find('Status').text
+        status = element.find('Status').text
         departure_planned = element.find('GeplandeVertrekTijd').text
         departure_planned = datetime.datetime.strptime(departure_planned[:-5], settings.NS_DATE_TIME_FORMAT)
         departure_actual = element.find('ActueleVertrekTijd').text
         departure_actual = datetime.datetime.strptime(departure_actual[:-5], settings.NS_DATE_TIME_FORMAT)
         delay = departure_actual - departure_planned
-        if not delay.seconds:
+        cancelled = status == 'NIET-MOGELIJK'
+        if delay.seconds:
+            delay = delay.seconds / 60
+        else:
+            delay = 0
+        if not delay and not cancelled:
             continue
-        delay = delay.seconds / 60
         train_type = element.find('ReisDeel').find('VervoerType').text
         track_elem = element.find('ReisDeel').find('ReisStop').find('Spoor')
         track = track_elem.text
         track_change = False if track_elem.attrib.get('wijziging') == 'false' else True
-        delays.append({
+        statuses.append({
             'station_from': station_from,
             'station_to': station_to,
             'train_type': train_type,
@@ -69,20 +73,26 @@ def parse_ns_api_result(xml, station_from, station_to):
             'departure_planned': departure_planned.strftime('%H:%M'),
             'departure_actual': departure_actual.strftime('%H:%M'),
             'delay': delay,
+            'cancelled': cancelled,
+            'status': status,
         })
-    return delays
+    return statuses
 
 
-def create_push_message(delays):
+def create_push_message(statuses):
     out = ''
     out_long = ''
-    for i, delay in enumerate(delays):
-        out += '{departure_planned}: (+{delay}) sp. {track}'.format(**delay)
+    for i, status in enumerate(statuses):
+        if status['delay']:
+            out += '{departure_planned}: (+{delay}) sp. {track}'.format(**status)
+            out_long += '{station_from} - {station_to} {departure_planned}: (+{delay}) sp. {track} ({train_type})'.format(**status)
+        elif status['cancelled']:
+            out += '{departure_planned}: Niet mogelijk'.format(**status)
+            out_long += '{station_from} - {station_to} {departure_planned}: Niet mogelijk ({train_type})'.format(**status)
         # add exclamation emoji if track changed
-        if delay['track_change']:
+        if status['track_change'] or status['cancelled']:
             out += '\xE2\x9D\x97'
-        out_long += '{station_from} - {station_to} {departure_planned}: (+{delay}) sp. {track} ({train_type})'.format(**delay)
-        if i < len(delays) - 1:
+        if i < len(statuses) - 1:
             out += ', '
             out_long += '\n'
         else:
@@ -109,17 +119,17 @@ def send_push_notification(message, message_long, access_token, url):
 
 
 def check_routes(routes):
-    all_delays = []
+    all_statuses = []
     for route in routes:
         if not route.profile.boxcar_send_push:
             continue
         if route.profile.silence_until and route.profile.silence_until > datetime.datetime.now():
             continue
-        delays = call_ns_api(route.station_from, route.station_to, route.departure_time_from)
-        if not delays:
+        statuses = call_ns_api(route.station_from, route.station_to, route.departure_time_from)
+        if not statuses:
             continue
         boxcar_access_token = route.profile.boxcar_access_token
-        message, message_long = create_push_message(delays)
+        message, message_long = create_push_message(statuses)
         hashed_message = base64.b64encode(message)
         if route.latest_push_message != hashed_message:
             route.latest_push_message = hashed_message
@@ -127,8 +137,8 @@ def check_routes(routes):
             url = 'https://{}.appspot.com{}'.format(app_identity.get_application_id(),
                                                     uri_for('profile_edit', obj_id=route.profile.key.id()))
             send_push_notification(message, message_long, boxcar_access_token, url)
-        all_delays.extend(delays)
-    return all_delays
+        all_statuses.extend(statuses)
+    return all_statuses
 
 
 def find_routes_to_check():

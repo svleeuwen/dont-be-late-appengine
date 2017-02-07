@@ -20,12 +20,14 @@
         <th>Time (delay)</th>
         <th>Train type</th>
         <th>Track</th>
+        <th>Status</th>
       </tr>
       {% for delay in delays %}
         <tr>
           <td>{{ delay.departure_planned }} (+{{ delay.delay }} minutes)</td>
           <td>{{ delay.train_type }}</td>
           <td>{% if delay.track_change %}<span class="text-danger">{% endif %}{{ delay.track }}</span></td>
+          <td>{{ delay.status }}</td>
         </tr>
       {% endfor %}
     </table>
