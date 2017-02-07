@@ -141,6 +141,9 @@ def find_routes_to_check():
                 continue
             now = datetime.datetime.now()
             local_now = utc_to_local(now)
+            if route.weekdays_only and local_now.weekday() in [6, 7]:
+                # it's weekend -> skip
+                continue
             if route.departure_time_from_offset <= local_now.time() <= route.departure_time_until:
                 route.profile = profile
                 routes_to_check.append(route)
