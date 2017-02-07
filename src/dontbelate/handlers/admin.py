@@ -71,25 +71,23 @@ class AdminProfileEditHandler(AdminBaseDetailHandler):
 
         obj.boxcar_access_token = self.request.get('boxcar_access_token')
 
-        obj.routes = []
-        station_from_list = self.request.get_all('station_from')
-        station_to_list = self.request.get_all('station_to')
-        departure_time_from_list = self.request.get_all('departure_time_from')
-        departure_time_until_list = self.request.get_all('departure_time_until')
-        departure_time_from_offset_list = self.request.get_all('departure_time_from_offset')
-        route_id_list = self.request.get_all('route_id')
         delete_list = self.request.get_all('delete')
 
-        routes = zip(
-            route_id_list,
-            station_from_list,
-            station_to_list,
-            departure_time_from_list,
-            departure_time_until_list,
-            departure_time_from_offset_list
-        )
+        obj.routes = []
+        index = 1
+        while True:
+            try:
+                route_id = self.request.POST['route_id-{}'.format(index)]
+                station_from = self.request.POST['station_from-{}'.format(index)]
+                station_to = self.request.POST['station_to-{}'.format(index)]
+                departure_time_from = self.request.POST['departure_time_from-{}'.format(index)]
+                departure_time_until = self.request.POST['departure_time_until-{}'.format(index)]
+                departure_time_from_offset = self.request.POST['departure_time_from_offset-{}'.format(index)]
+                weekdays_only = self.request.get('weekdays_only-{}'.format(index))
+            except KeyError:
+                break
+            index += 1
 
-        for route_id, station_from, station_to, departure_time_from, departure_time_until, departure_time_from_offset in routes:
             if not all([station_from, station_to, departure_time_from, departure_time_until]):
                 continue
             if not route_id:
@@ -105,6 +103,7 @@ class AdminProfileEditHandler(AdminBaseDetailHandler):
             route.departure_time_until = datetime.datetime.strptime(departure_time_until, '%H:%M').time()
             if departure_time_from_offset:
                 route.departure_time_from_offset = datetime.datetime.strptime(departure_time_from_offset, '%H:%M').time()
+            route.weekdays_only = weekdays_only == 'on'
             route.put()
             obj.routes.append(route.key)
         return obj, errors

@@ -53,39 +53,47 @@
     {% for route in object.get_routes() %}
       <div class="panel">
         <div class="panel-body">
-          <input type="hidden" name="route_id" value="{% if route.key %}{{ route.key.id() }}{% endif %}">
+          <input type="hidden" name="route_id-{{ loop.index }}" value="{% if route.key %}{{ route.key.id() }}{% endif %}">
           <div class="row">
             <div class="form-group col-md-3">
               <label for="station_from-{{ loop.index }}">Van</label>
-              <input type="text" class="form-control" maxlength="200" id="station_from-{{ loop.index }}" name="station_from"
+              <input type="text" class="form-control" maxlength="200" id="station_from-{{ loop.index }}" name="station_from-{{ loop.index }}"
                      value="{% if route.station_from %}{{ route.station_from }}{% endif %}">
             </div>
           </div>
           <div class="row">
             <div class="form-group col-md-3">
               <label for="station_to-{{ loop.index }}">Naar</label>
-              <input type="text" class="form-control" maxlength="200" id="station_to" name="station_to"
+              <input type="text" class="form-control" maxlength="200" id="station_to" name="station_to-{{ loop.index }}"
                      value="{% if route.station_to %}{{ route.station_to }}{% endif %}">
             </div>
           </div>
           <div class="row">
             <div class="form-group col-md-3">
               <label for="departure_time_from-{{ loop.index }}">Vertrektijd van</label>
-              <input type="time" class="form-control" maxlength="200" id="departure_time_from-{{ loop.index }}" name="departure_time_from"
+              <input type="time" class="form-control" maxlength="200" id="departure_time_from-{{ loop.index }}" name="departure_time_from-{{ loop.index }}"
                      value="{% if route.departure_time_from %}{{ route.departure_time_from.strftime('%H:%M') }}{% endif %}">
             </div>
             <div class="form-group col-md-3">
               <label for="departure_time_until-{{ loop.index }}">Vertrektijd tot</label>
-              <input type="time" class="form-control" maxlength="200" id="departure_time_until-{{ loop.index }}" name="departure_time_until"
+              <input type="time" class="form-control" maxlength="200" id="departure_time_until-{{ loop.index }}" name="departure_time_until-{{ loop.index }}"
                      value="{% if route.departure_time_until %}{{ route.departure_time_until.strftime('%H:%M') }}{% endif %}">
             </div>
           </div>
           <div class="row">
             <div class="form-group col-md-3">
               <label for="departure_time_from_offset-{{ loop.index }}">Vertrektijd offset</label>
-              <input type="time" class="form-control" maxlength="200" id="departure_time_from_offset-{{ loop.index }}" name="departure_time_from_offset"
+              <input type="time" class="form-control" maxlength="200" id="departure_time_from_offset-{{ loop.index }}" name="departure_time_from_offset-{{ loop.index }}"
                      value="{% if route.departure_time_from_offset %}{{ route.departure_time_from_offset.strftime('%H:%M') }}{% endif %}">
               <p class="help-block">Begin met checken vanaf deze tijd</p>
+            </div>
+          </div>
+          <div class="row">
+            <div class="form-group col-md-3">
+              <label for="weekdays_only-{{ loop.index }}">
+                <input type="checkbox" id="weekdays_only-{{ loop.index }}" name="weekdays_only-{{ loop.index }}" {% if route.weekdays_only %}checked{% endif %}>
+                Alleen weekdagen
+              </label>
             </div>
           </div>
           {% if route.key %}
